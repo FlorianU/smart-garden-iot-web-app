@@ -1,69 +1,123 @@
-# Welcome to your Lovable project
+# IoT Smart Garden
 
-## Project info
+Welcome to the **IoT Smart Garden** project! This project is a NestJS-based server designed to provide a robust REST API and MQTT-based subscription and publishing functionality. The system enables control of smart gardening systems, including lighting and watering, and offers real-time sensor data collection and monitoring.
 
-**URL**: https://lovable.dev/projects/496cf54c-ec5d-4a72-8289-259b5d6937a6
+---
 
-## How can I edit this code?
+## Table of Contents
 
-There are several ways of editing your application.
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Getting Started](#getting-started)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Running the Application](#running-the-application)
+- [MQTT Integration](#mqtt-integration)
+- [System Overview](#system-overview)
+- [Authors](#authors)
+- [License](#license)
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/496cf54c-ec5d-4a72-8289-259b5d6937a6) and start prompting.
+## Features
 
-Changes made via Lovable will be committed automatically to this repo.
+- **REST API**: Provides endpoints to manage and monitor the smart gardening system.
+- **MQTT Integration**: Allows subscription and publishing to an MQTT broker for real-time control and updates.
+- **Smart Lighting Control**: Manage and automate lighting schedules for your garden.
+- **Smart Watering Control**: Enable precise watering control with real-time adjustments.
+- **Real-Time Sensor Data**: Retrieve live sensor data (e.g., soil moisture, temperature, humidity).
+- **Scalable and Modular**: Built with NestJS for a highly scalable and modular architecture.
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Technologies Used
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **Node.js** with **NestJS** framework for backend development.
+- **TypeScript** for type-safe programming.
+- **MQTT** for lightweight messaging and real-time communication.
+- **REST API** for structured and easy integration.
+- **Docker** (optional) for containerized deployment.
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Getting Started
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Installation
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. Clone the repository:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+   ```bash
+   git clone https://github.com/FlorianU/smart-garden-iot-web-app.git
+   cd smart-garden-iot-web-app
+   ```
 
-**Edit a file directly in GitHub**
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Configuration
 
-**Use GitHub Codespaces**
+1. Create a `.env` file in the root directory and configure the following variables:
+   ```env
+   MQTT_BROKER_URL, MQTT_USERNAME, MQTT_PASSWORD, API_PORT
+   ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Running the Application
 
-## What technologies are used for this project?
+- **Development Mode:**
 
-This project is built with .
+  ```bash
+  npm run start:dev
+  ```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Production Mode:**
 
-## How can I deploy this project?
+  ```bash
+  npm run build
+  npm run start:prod
+  ```
 
-Simply open [Lovable](https://lovable.dev/projects/496cf54c-ec5d-4a72-8289-259b5d6937a6) and click on Share -> Publish.
+- **Running with Docker (optional):**
+  ```bash
+  docker build -t smart-garden-iot-web-app .
+  docker run -p 3000:3000 smart-garden-iot-web-app
+  ```
 
-## I want to use a custom domain - is that possible?
+---
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## MQTT Integration
+
+This application integrates with an MQTT broker to:
+
+- Subscribe to topics for real-time updates from sensors.
+- Publish commands to control lights and watering systems.
+
+## System Overview
+
+### Architecture
+
+- **Controllers**: Handle HTTP requests and MQTT communication.
+- **Services**: Encapsulate business logic.
+- **Modules**: Organize the application by features (e.g., Lighting, Watering, Sensors).
+
+### Flow
+
+1. User interacts with the REST API or MQTT broker.
+2. Commands are processed by controllers and passed to services.
+3. Services interact with the MQTT broker or database (if applicable).
+4. Real-time updates are sent back to the user via MQTT or API responses.
+
+---
+
+## Authors
+
+- Eman Mhesin
+- Fatereh Tondro
+- Florian Unger
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
