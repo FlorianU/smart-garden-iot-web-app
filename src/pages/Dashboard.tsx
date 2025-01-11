@@ -157,7 +157,7 @@ const Dashboard = () => {
         {/* Header Image */}
         <div className="relative h-48 rounded-lg overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1523712999610-f77fbcfc3843"
+            src="/2.jpg"
             alt="Garden"
             className="w-full h-full object-cover"
           />

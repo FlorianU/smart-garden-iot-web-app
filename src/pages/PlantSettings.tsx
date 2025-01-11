@@ -41,7 +41,7 @@ const PlantSettings = () => {
         {/* Plant Image */}
         <div className="relative h-48 rounded-lg overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1518495973542-4542c06a5843"
+            src="/1.jpeg"
             alt="Plant"
             className="w-full h-full object-cover"
           />
