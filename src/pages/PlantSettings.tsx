@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { FileContext } from "@/filecontext";
 import { useToast } from "@/hooks/use-toast";
+import { format, parse } from "date-fns";
 import { ArrowLeft, Clock, Droplet } from "lucide-react";
 import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -60,6 +61,24 @@ const PlantSettings = () => {
     setMoisture(value);
     debouncedSaveMoisture(value); // Use debounced function
   };
+
+  const getNextWateringTime = () => {
+    if (!plant) return null;
+
+    const now = new Date();
+    const times = [plant.wateringTime1, plant.wateringTime2].map((time) => {
+      const parsedTime = parse(time, "kk:mm", now); // Parse times relative to today
+      return parsedTime.getTime() < now.getTime()
+        ? new Date(parsedTime.getTime() + 24 * 60 * 60 * 1000) // Adjust for next day if time has passed
+        : parsedTime;
+    });
+
+    // Sort times to get the next closest
+    const nextTime = times.sort((a, b) => a.getTime() - b.getTime())[0];
+    return nextTime;
+  };
+
+  const nextWateringTime = getNextWateringTime();
 
   return (
     <div className="min-h-screen bg-background p-4 animate-fade-in">
@@ -121,6 +140,25 @@ const PlantSettings = () => {
                   </Button>
                 </div>
               ))}
+            </div>
+            {/* Last Watering */}
+            <div className="bg-white rounded-lg p-4 shadow-md">
+              <h2 className="text-lg font-semibold mb-2">Last Watering</h2>
+              <p className="text-gray-600">
+                {format(plant.lastWatered, "dd.MM.yyyy kk:mm:ss")}
+              </p>
+            </div>
+            {/* Next Watering */}
+            <div className="bg-white rounded-lg p-4 shadow-md">
+              <h2 className="text-lg font-semibold mb-2">Next Watering</h2>
+              {plant.isWateringScheduled ? (
+                format(nextWateringTime, "dd.MM.yyyy kk:mm:ss")
+              ) : (
+                <p className="text-gray-600">
+                  no watering scheduled as moisture is sufficient or weather
+                  implies rainfall
+                </p>
+              )}
             </div>
           </>
         ) : null}
