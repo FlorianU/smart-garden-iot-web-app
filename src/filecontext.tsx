@@ -33,6 +33,7 @@ type FileContextType = {
 export const FileContext = createContext<FileContextType | undefined>(
   undefined
 );
+
 // Updated FileProvider component with saving functionality for watering times and soil moisture
 export const FileProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -51,6 +52,31 @@ export const FileProvider: React.FC<{ children: React.ReactNode }> = ({
       toast({ title: "Error", description: error.message });
     }
   }, [toast]);
+
+  const toggleLight = async () => {
+    try {
+      const newState = isLightOn ? "off" : "on";
+      const response = await fetch(
+        `http://${SERVERADD}:3000/mqtt/${DEVICE}/${ACCOUNT}/setLighting`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ state: newState }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to toggle lighting");
+
+      setIsLightOn((prevState) => !prevState);
+
+      toast({
+        title: "Success",
+        description: `Lighting turned ${newState}`,
+      });
+    } catch (error) {
+      toast({ title: "Error", description: error.message });
+    }
+  };
 
   const saveWateringTimes = async (wateringTimes: [string, string]) => {
     try {
@@ -108,7 +134,7 @@ export const FileProvider: React.FC<{ children: React.ReactNode }> = ({
         plant,
         setPlant,
         getSoilMoisture: fetchPlantData,
-        toggleLight: async () => {},
+        toggleLight,
         isLightOn,
         saveWateringTimes,
         saveIdealSoilMoisture,
