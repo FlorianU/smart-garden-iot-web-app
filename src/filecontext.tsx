@@ -13,6 +13,9 @@ type Plant = {
   soilMoisture: number;
   requiredSoilMoisture: number;
   lastWatered: string;
+  isWateringScheduled: boolean;
+  wateringTime1: string; // First optimal watering time (HH:mm:ss format)
+  wateringTime2: string; // Second optimal watering time (HH:mm:ss format)
 };
 
 // Define the context type
@@ -22,14 +25,15 @@ type FileContextType = {
   getSoilMoisture: () => void;
   toggleLight: () => void;
   isLightOn: boolean;
+  saveWateringTimes: (wateringTimes: [string, string]) => void;
+  saveIdealSoilMoisture: (idealSoilMoisture: number) => void;
 };
 
 // Create the context
 export const FileContext = createContext<FileContextType | undefined>(
   undefined
 );
-
-// FileContext provider component
+// Updated FileProvider component with saving functionality for watering times and soil moisture
 export const FileProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -37,102 +41,63 @@ export const FileProvider: React.FC<{ children: React.ReactNode }> = ({
   const [plant, setPlant] = useState<Plant | null>(null);
   const [isLightOn, setIsLightOn] = useState(false);
 
-  // Fetch plant data
   const fetchPlantData = useCallback(async () => {
     try {
-      const response = await fetch(`http://${SERVERADD}:3000/plants/1`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch plant data");
-      }
-
+      const response = await fetch(`http://${SERVERADD}:3000/plants/1`);
+      if (!response.ok) throw new Error("Failed to fetch plant data");
       const plantData = await response.json();
       setPlant(plantData);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: `Failed to fetch plant data: ${error.message}`,
-      });
+      toast({ title: "Error", description: error.message });
     }
   }, [toast]);
 
-  // Fetch soil moisture
-  const getSoilMoisture = async () => {
+  const saveWateringTimes = async (wateringTimes: [string, string]) => {
     try {
-      const response = await fetch(
-        `http://${SERVERADD}:3000/mqtt/${ACCOUNT}/${DEVICE}/soilMoisture`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to read soil moisture");
-      }
-
-      const value = await response.text();
-      if (plant) {
-        setPlant((prevPlant) => ({
-          ...prevPlant!,
-          soilMoisture: parseFloat(value) * 100,
-        }));
-      }
-
-      toast({
-        title: "Soil Moisture",
-        description: "The current soil moisture has been refreshed",
+      const response = await fetch(`http://${SERVERADD}:3000/plants/1`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          wateringTime1: wateringTimes[0],
+          wateringTime2: wateringTimes[1],
+        }),
       });
+
+      if (!response.ok) throw new Error("Failed to save watering times");
+
+      setPlant((prevPlant) => ({
+        ...prevPlant!,
+        wateringTime1: wateringTimes[0],
+        wateringTime2: wateringTimes[1],
+      }));
+
+      toast({ title: "Success", description: "Watering times updated" });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: `Failed to read soil moisture: ${error.message}`,
-      });
+      toast({ title: "Error", description: error.message });
     }
   };
 
-  // Toggle the light state
-  const toggleLight = async () => {
-    const newState = !isLightOn;
+  const saveIdealSoilMoisture = async (idealSoilMoisture: number) => {
     try {
-      const response = await fetch(
-        `http://${SERVERADD}:3000/mqtt/${ACCOUNT}/${DEVICE}/setLighting`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ state: newState ? "on" : "off" }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to toggle light");
-      }
-
-      setIsLightOn(newState);
-      toast({
-        title: newState ? "Smart Light turned on" : "Smart Light turned off",
-        description: `The smart light system has been ${
-          newState ? "activated" : "deactivated"
-        }.`,
+      const response = await fetch(`http://${SERVERADD}:3000/plants/1`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requiredSoilMoisture: idealSoilMoisture }),
       });
+
+      if (!response.ok) throw new Error("Failed to save soil moisture setting");
+
+      setPlant((prevPlant) => ({
+        ...prevPlant!,
+        requiredSoilMoisture: idealSoilMoisture,
+      }));
+
+      toast({ title: "Success", description: "Soil moisture setting updated" });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: `Failed to toggle light: ${error.message}`,
-      });
+      toast({ title: "Error", description: error.message });
     }
   };
 
-  // Fetch plant data on initial render
   useEffect(() => {
     fetchPlantData();
   }, [fetchPlantData]);
@@ -142,9 +107,11 @@ export const FileProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
         plant,
         setPlant,
-        getSoilMoisture,
-        toggleLight,
+        getSoilMoisture: fetchPlantData,
+        toggleLight: async () => {},
         isLightOn,
+        saveWateringTimes,
+        saveIdealSoilMoisture,
       }}
     >
       {children}
